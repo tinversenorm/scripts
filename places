@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# places - A script to save common file paths and access them
+# cd -P goes to the physical location linked to.
+# ln -s creates the symlink
+
+# constants
+_placesdir="$PWD/placesdir"
+
+if [ ! -d "$_placesdir" ]; then
+  mkdir "$PWD/placesdir"
+fi
+
+cmd="$1"
+dir="$2"
+alias="$3"
+if [ "$cmd" = "save" ]
+then
+  if [ "$dir" = "" ] || [ ! -d "$dir" ]
+  then
+    echo "No directory to save."
+  else
+    if [ "$dir" = "." ]
+    then
+      dir=$(pwd)
+    fi
+
+    if [ "$alias" = "" ]
+    then
+      echo "No alias provided. Using default."
+      ln -s $dir "$_placesdir/$dir"
+    else
+      ln -s $dir "$_placesdir/$alias"
+    fi
+  fi
+elif [ "$cmd" = "-help" ] || [ "$cmd" = "-h" ] || [ "$cmd" = "help" ]
+then
+  echo "Usage: Use places to save file paths with shorter names."
+  echo "Options: -help/-h :prints out usage"
+  echo "         save actualdirectory youralias :saves a directory alias"
+  echo "         go youralias :changes to aliased directory"
+  echo "         list :lists all known aliases"
+  echo ""
+elif [ "$cmd" = "go" ]
+then
+  if [ "$dir" = "" ] || [ ! -d "$_placesdir/$dir" ]
+  then
+    echo "Directory $dir not valid."
+  else
+    cd -P "$_placesdir/$dir"
+  fi
+elif [ "$cmd" = "list" ]
+then
+  ls "$_placesdir"
+else
+  echo "Enter 'places -help' or 'places -h' for usage information."
+fi
